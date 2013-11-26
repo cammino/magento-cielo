@@ -1,0 +1,8 @@
+<config>
+    <modules>
+        <Cammino_Cielo>
+            <active>true</active>
+            <codePool>community</codePool>
+        </Cammino_Cielo>
+    </modules>
+</config>

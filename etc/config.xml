@@ -1,0 +1,47 @@
+<config>
+	<modules>
+		<Cammino_Cielo>
+			<version>0.0.1</version>
+			<depends>
+				<Mage_Payment />
+			</depends>
+		</Cammino_Cielo>
+	</modules>
+	<global>
+		<models>
+			<cielo>
+				<class>Cammino_Cielo_Model</class>
+			</cielo>
+		</models>
+		<resources>
+			<connection>
+				<use>core_setup</use>
+			</connection>
+		</resources>
+		<blocks>
+			<cielo>
+				<class>Cammino_Cielo_Block</class>
+			</cielo>
+		</blocks>
+	</global>
+	<frontend>
+		<routers>
+			<cielo>
+				<use>standard</use>
+				<args>
+					<module>Cammino_Cielo</module>
+					<frontName>cielo</frontName>
+				</args>
+			</cielo>
+		</routers>
+	</frontend>
+	<default>
+		<payment>
+			<cielo_default>
+				<active>0</active>
+				<model>Cammino_Cielo_Model_Default</model>
+				<title>Cielo BuyPage Cielo</title>
+			</cielo_default>
+		</payment>
+	</default>
+</config>
