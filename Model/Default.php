@@ -25,7 +25,7 @@ class Cammino_Cielo_Model_Default extends Mage_Payment_Model_Method_Abstract {
 
 	public function generateXml($orderId) {
 		
-		$url_return_default = Mage::getUrl('cielo/default/receipt');
+		$url_return_default = Mage::getUrl('cielo/default/receipt/id/'.$orderId);
 		$order = Mage::getModel("sales/order");
 		$order->loadByIncrementId($orderId);
 
@@ -86,12 +86,26 @@ class Cammino_Cielo_Model_Default extends Mage_Payment_Model_Method_Abstract {
 
 		return $xml;
 	}
-
-	public function sendXml($orderId)
+	
+	public function generateXmlReceipt($orderId)
 	{
-		$string = $this->generateXml($orderId);
+		$cieloNumber = $this->getConfigData('cielo_number');
+		$cieloKey = $this->getConfigData('cielo_key');
 
+		$xml = '<?xml version="1.0" encoding="UTF-8"?>
+			<requisicao-consulta-chsec id="'.$orderId.'" versao="1.2.1"> <numero-pedido>'.$orderId.'</numero-pedido>
+				<dados-ec>
+					<numero>'.$cieloNumber.'</numero> <chave>'.$cieloKey.'</chave>
+				</dados-ec>
+			</requisicao-consulta-chsec>';
 
+		return $xml;
+	}
+
+	public function sendXml($orderId, $type = 'pay')
+	{
+		if ($type == 'pay') { $string = $this->generateXml($orderId); }
+		if ($type == 'receipt') { $string = $this->generateXmlReceipt($orderId); }
 
 		if($this->getConfigdata("cielo_number") == '1001734898'){
     		//Ambiente de testes
@@ -119,6 +133,5 @@ class Cammino_Cielo_Model_Default extends Mage_Payment_Model_Method_Abstract {
 	    $xml = simplexml_load_string($string);
 
 	    return $xml;
-
 	}
 }
