@@ -40,8 +40,8 @@ class Cammino_Cielo_Block_Receipt extends Mage_Payment_Block_Form {
 			if ( $xml->status == 1 || $xml->status == 2 || $xml->status == 4 || $xml->status == 6 || $xml->status == 10 ){
 				$state   = 'processing';
 				$status  = 'processing';
-				$comment = 'Processando pedido.'
-			} else{
+				$comment = 'Processando pedido.';
+			} else {
 				$state = 'canceled';
 				$status = 'canceled'; //status criado por nós anteriormente.
 				if ( isset($xml->cancelamentos->cancelamento->mensagem) ) $comment = $xml->cancelamentos->cancelamento->mensagem; else $comment = 'Pedido cancelado pelo sistema Cielo.';
