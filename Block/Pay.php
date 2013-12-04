@@ -16,10 +16,8 @@ class Cammino_Cielo_Block_Pay extends Mage_Payment_Block_Form {
 			$order->loadByIncrementId($session->getLastRealOrderId());
 			$this->_orderId = $order->getRealOrderId();
 		}
-
 		
 		$this->_xml = $cielo->sendXml($this->_orderId);
-		
 		$this->setTemplate("cielo/pay.phtml");
 
 		parent::_construct();
