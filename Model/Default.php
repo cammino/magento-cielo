@@ -51,6 +51,10 @@ class Cammino_Cielo_Model_Default extends Mage_Payment_Model_Method_Abstract {
 		$card 		 = $addata->_data['cielo_card']; // visa, master, elo
 		$plots		 = $addata->_data['cielo_plots']; // 1x, 3x, 6x, 12x, 18x, 36x, 56x.
 
+		if ($payMethod == "A") {
+			$cieloAuthTrans = 1;
+		}
+
 		// order
 		$orderData = str_replace(' ', 'T', $order->_data['created_at']);
 		$orderTotal = number_format($order->getTotalDue(), 2, "", "");
