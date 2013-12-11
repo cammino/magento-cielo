@@ -107,7 +107,7 @@ class Cammino_Cielo_Model_Default extends Mage_Payment_Model_Method_Abstract {
 		if ($type == 'pay') { $string = $this->generateXml($orderId); }
 		if ($type == 'receipt') { $string = $this->generateXmlReceipt($orderId); }
 
-		if($this->getConfigdata("cielo_number") == '1001734898'){
+		if($this->getConfigdata("environment") == 'test'){
     		//Ambiente de testes
     		$url = 'https://qasecommerce.cielo.com.br/servicos/ecommwsec.do';
 		}else{
