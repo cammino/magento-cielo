@@ -3,6 +3,7 @@ class Cammino_Cielo_Block_Pay extends Mage_Payment_Block_Form {
 	
 	private $_orderId;
 	private $_xml;
+	private $_error;
 
 	protected function _construct() {
 
@@ -20,8 +21,6 @@ class Cammino_Cielo_Block_Pay extends Mage_Payment_Block_Form {
 		$this->_xml = $cielo->sendXml($this->_orderId);
 		$this->setTemplate("cielo/pay.phtml");
 
-		var_dump($this->_xml);
-
 		parent::_construct();
 	}
 
@@ -29,6 +28,15 @@ class Cammino_Cielo_Block_Pay extends Mage_Payment_Block_Form {
 	public function getUrlAuth()
 	{
 		return $this->_xml->{'url-autenticacao'};
+	}
+
+	public function getError()
+	{
+		if (strval($this->_xml->{'url-autenticacao'}) == "") {
+			return $this->_xml->{'codigo'} . " - " . $this->_xml->{'mensagem'};
+		} else {
+			return false;
+		}
 	}
 	
 }
