@@ -84,7 +84,6 @@ class Cammino_Cielo_Model_Default extends Mage_Payment_Model_Method_Abstract {
     			<autorizar>'.$cieloAuthTrans.'</autorizar>
     			<capturar>'.$cieloCapture.'</capturar> 
     			<campo-livre>'.$cieloDesc.'</campo-livre> 
-    			<bin>455187</bin>
     			<gerar-token>'.$cieloToken.'</gerar-token>';
 		$xml .= '</requisicao-transacao>';		
 
