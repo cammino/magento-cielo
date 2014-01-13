@@ -34,7 +34,7 @@ class Cammino_Cielo_Model_Default extends Mage_Payment_Model_Method_Abstract {
 		$addata = unserialize($payment->getData("additional_data"));
 		
 		$customer = Mage::getModel("customer/customer");
-		$customer->load($orderData['customer_id']);
+		$customer->load($order->getCustomerId());
 		$billingAddress = $order->getBillingAddress();
 
 		// default for operation
