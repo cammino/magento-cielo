@@ -1,5 +1,5 @@
 <?php
-class Cammino_Cielo_Block_Info extends Mage_Core_Block_Template {
+class Cammino_Cielo_Block_Info extends Mage_Payment_Block_Info {
 	
     /**
      * Payment rendered specific information
