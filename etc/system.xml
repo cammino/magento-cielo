@@ -61,6 +61,13 @@
 							<show_in_website>1</show_in_website>
 							<show_in_store>1</show_in_store>
 						</environment>
+						<valueHomolog>
+							<label>Sku do produto de homologação</label>
+							<sort_order>7</sort_order>
+							<show_in_default>1</show_in_default>
+							<show_in_website>1</show_in_website>
+							<show_in_store>1</show_in_store>
+						</valueHomolog>	
 					</fields>	
 				</cielo_default>
 			</groups>

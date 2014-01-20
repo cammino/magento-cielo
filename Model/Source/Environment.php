@@ -10,6 +10,10 @@ class Cammino_Cielo_Model_Source_Environment {
 			array(
 				"value" => "test",
 				"label" => " Testes"
+			),
+			array(
+				"value" => "homolog",
+				"label" => " Homologação"
 			)
 		);
 	}
