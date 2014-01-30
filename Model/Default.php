@@ -40,12 +40,13 @@ class Cammino_Cielo_Model_Default extends Mage_Payment_Model_Method_Abstract {
 		// default for operation
 		$cieloNumber = $this->getConfigdata("cielo_number");
 		$cieloKey 	 = $this->getConfigdata("cielo_key");
-		$cieloAuthTrans = $this->getConfigdata("cielo_auth_transition") ? $this->getConfigdata("cielo_auth_transition") : 3;
-		$cieloRetUrl    = $this->getConfigdata("cielo_url_return") ? $this->getConfigdata("cielo_url_return") : $url_return_default;
-		$cieloCapture   = $this->getConfigdata("cielo_capture") ? $this->getConfigdata("cielo_capture"):'false';
-		$cieloDesc 	    = $this->getConfigdata("cielo_description") ? $this->getConfigdata("cielo_description") : '';
-		$cieloToken     = $this->getConfigdata("cielo_token") ? $this->getConfigdata("cielo_token") : 'false';
-		$cieloPlotsType	= $this->getConfigdata("cielo_plots_type") ? $this->getConfigdata("cielo_plots_type") : 'A';
+
+		$cieloAuthTrans = $this->getConfigdata("auth_transition") ? $this->getConfigdata("auth_transition") : 3;
+		$cieloRetUrl    = $this->getConfigdata("url_return") ? $this->getConfigdata("url_return") : $url_return_default;
+		$cieloCapture   = $this->getConfigdata("capture") ? $this->getConfigdata("capture"):'false';
+		$cieloDesc 	    = $this->getConfigdata("description") ? $this->getConfigdata("description") : '';
+		$cieloToken     = $this->getConfigdata("token") ? $this->getConfigdata("token") : 'false';
+		$cieloPlotsType	= $this->getConfigdata("plots_type") ? $this->getConfigdata("plots_type") : 'A';
 		
 		// payment
 		$payMethod   = $addata->_data['cielo_type']; // 1- Credit Card / A- Debit Card / 3 - Credit card plots
