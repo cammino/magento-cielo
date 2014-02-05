@@ -43,7 +43,7 @@ class Cammino_Cielo_Model_Default extends Mage_Payment_Model_Method_Abstract {
 
 		$cieloAuthTrans = $this->getConfigdata("auth_transition") ? $this->getConfigdata("auth_transition") : 3;
 		$cieloRetUrl    = $this->getConfigdata("url_return") ? $this->getConfigdata("url_return") : $url_return_default;
-		$cieloCapture   = $this->getConfigdata("capture") ? $this->getConfigdata("capture"):'false';
+		$cieloCapture   = $this->getConfigdata("capture") ? $this->getConfigdata("capture"):'true';
 		$cieloDesc 	    = $this->getConfigdata("description") ? $this->getConfigdata("description") : '';
 		$cieloToken     = $this->getConfigdata("token") ? $this->getConfigdata("token") : 'false';
 		$cieloPlotsType	= $this->getConfigdata("plots_type") ? $this->getConfigdata("plots_type") : 'A';
