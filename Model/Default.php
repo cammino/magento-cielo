@@ -3,6 +3,7 @@ class Cammino_Cielo_Model_Default extends Mage_Payment_Model_Method_Abstract {
 	
 	protected $_canAuthorize = true;
 	protected $_canCapture = true;
+	protected $_canCapturePartial = false;
 	protected $_code = 'cielo_default';
 	protected $_formBlockType = 'cielo/form';
 	protected $_infoBlockType = 'cielo/info';
@@ -43,7 +44,7 @@ class Cammino_Cielo_Model_Default extends Mage_Payment_Model_Method_Abstract {
 
 		$cieloAuthTrans = $this->getConfigdata("auth_transition") ? $this->getConfigdata("auth_transition") : 3;
 		$cieloRetUrl    = $this->getConfigdata("url_return") ? $this->getConfigdata("url_return") : $url_return_default;
-		$cieloCapture   = $this->getConfigdata("capture") ? $this->getConfigdata("capture"):'true';
+		$cieloCapture   = $this->getConfigdata("capture") ? $this->getConfigdata("capture"):'false';
 		$cieloDesc 	    = $this->getConfigdata("description") ? $this->getConfigdata("description") : '';
 		$cieloToken     = $this->getConfigdata("token") ? $this->getConfigdata("token") : 'false';
 		$cieloPlotsType	= $this->getConfigdata("plots_type") ? $this->getConfigdata("plots_type") : 'A';
@@ -102,33 +103,48 @@ class Cammino_Cielo_Model_Default extends Mage_Payment_Model_Method_Abstract {
 		$cieloKey = $this->getConfigData('cielo_key');
 
 		$xml = '<?xml version="1.0" encoding="UTF-8"?>
-			<requisicao-consulta-chsec id="'.$orderId.'" versao="1.2.1"> <numero-pedido>'.$orderId.'</numero-pedido>
+			<requisicao-consulta-chsec id="'.$orderId.'" versao="1.2.1">
+				<numero-pedido>'.$orderId.'</numero-pedido>
 				<dados-ec>
-					<numero>'.$cieloNumber.'</numero> <chave>'.$cieloKey.'</chave>
+					<numero>'.$cieloNumber.'</numero>
+					<chave>'.$cieloKey.'</chave>
 				</dados-ec>
 			</requisicao-consulta-chsec>';
 
 		return $xml;
 	}
 
-	public function sendXml($orderId, $type = 'pay')
+	public function generateXmlCapture($orderId, $amount, $tid)
 	{
-		if ($type == 'pay') { $string = $this->generateXml($orderId); }
-		if ($type == 'receipt') { $string = $this->generateXmlReceipt($orderId); }
+		$cieloNumber = $this->getConfigData('cielo_number');
+		$cieloKey = $this->getConfigData('cielo_key');
+		$amount = number_format($amount, 2, "", "");
 
+		$xml = '<?xml version="1.0" encoding="UTF-8"?>
+			<requisicao-captura id="'.$orderId.'" versao="1.2.1">
+				<tid>'.$tid.'</tid>
+				<dados-ec>
+					<numero>'.$cieloNumber.'</numero>
+					<chave>'.$cieloKey.'</chave>
+				</dados-ec>
+				<valor>'. $amount .'</valor>
+			</requisicao-captura>';
+
+		return $xml;
+	}
+
+	public function sendXml($xmlRequest)
+	{
 		if($this->getConfigdata("environment") == 'test'){
-    		//Ambiente de testes
     		$url = 'https://qasecommerce.cielo.com.br/servicos/ecommwsec.do';
 		}else{
-    		//Ambiente de produção
     		$url = 'https://ecommerce.cbmp.com.br/servicos/ecommwsec.do';
 		}
 
 	    $ch = curl_init();
-	    flush();
 	    
 	    curl_setopt($ch, CURLOPT_POST, 1);
-	    curl_setopt($ch, CURLOPT_POSTFIELDS,  'mensagem=' . $string);
+	    curl_setopt($ch, CURLOPT_POSTFIELDS,  'mensagem=' . $xmlRequest);
 	    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 	    curl_setopt($ch, CURLOPT_URL, $url);
 	    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
@@ -136,11 +152,22 @@ class Cammino_Cielo_Model_Default extends Mage_Payment_Model_Method_Abstract {
 	    curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10);
 	    curl_setopt($ch, CURLOPT_TIMEOUT, 40);
 	    
-	    $string = curl_exec($ch);
+	    $xmlReturn = curl_exec($ch);
 	    curl_close($ch);
 	    
-	    $xml = simplexml_load_string($string);
+	    $xml = simplexml_load_string($xmlReturn);
 
 	    return $xml;
+	}
+
+	public function capture(Varien_Object $payment, $amount)
+	{
+		$order = $payment->getOrder();
+		$orderId = $order->getRealOrderId();
+		$addata = unserialize($payment->getData("additional_data"));
+		$tid = $addata["tid"];
+		$xml = $this->sendXml($this->generateXmlCapture($orderId, $amount, $tid));
+
+		return $this;
 	}
 }
