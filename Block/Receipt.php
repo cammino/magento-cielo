@@ -61,8 +61,11 @@ class Cammino_Cielo_Block_Receipt extends Mage_Payment_Block_Form {
 		}
 
 		$order->setState($state, $status, $comment, false);
-		$order->save();
-		$order->sendNewOrderEmail();
+
+		if ($status != 'canceled') {
+			$order->save();
+			$order->sendNewOrderEmail();
+		}
 
 		return $xml;
 	}
