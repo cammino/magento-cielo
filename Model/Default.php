@@ -168,6 +168,12 @@ class Cammino_Cielo_Model_Default extends Mage_Payment_Model_Method_Abstract {
 		$tid = $addata["tid"];
 		$xml = $this->sendXml($this->generateXmlCapture($orderId, $amount, $tid));
 
+		if (strval($xml->captura) == "") {
+			$message = $xml->mensagem;
+			Mage::logException($message);
+			Mage::throwException($message);
+		}
+
 		return $this;
 	}
 }
