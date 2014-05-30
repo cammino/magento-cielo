@@ -44,4 +44,17 @@
 			</cielo_default>
 		</payment>
 	</default>
+
+	<admin>
+		<routers>
+			<adminhtml>
+				<args>
+					<modules>
+						<Cammino_Cielo after="Mage_Adminhtml">Cammino_Cielo_Adminhtml</Cammino_Cielo>
+					</modules>
+				</args>
+			</adminhtml>
+		</routers>
+	</admin>
+
 </config>

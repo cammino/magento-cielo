@@ -160,6 +160,22 @@ class Cammino_Cielo_Model_Default extends Mage_Payment_Model_Method_Abstract {
 	    return $xml;
 	}
 
+	public function generateXmlQuery($orderId)
+	{
+		$cieloNumber = $this->getConfigData('cielo_number');
+		$cieloKey = $this->getConfigData('cielo_key');
+
+		$xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>
+			<requisicao-consulta-chsec id=\"a51489b1-93d5-437f-bb4f-5b932fade248\" versao=\"1.2.1\">
+				<numero-pedido>". $orderId ."</numero-pedido>
+				<dados-ec>
+					<numero>". $cieloNumber ."</numero><chave>". $cieloKey ."</chave>
+				</dados-ec>
+			</requisicao-consulta-chsec>";
+
+		return $xml;
+	}
+
 	public function capture(Varien_Object $payment, $amount)
 	{
 		$order = $payment->getOrder();
