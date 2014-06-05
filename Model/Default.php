@@ -154,6 +154,9 @@ class Cammino_Cielo_Model_Default extends Mage_Payment_Model_Method_Abstract {
 	    
 	    $xmlReturn = curl_exec($ch);
 	    curl_close($ch);
+
+	    Mage::log("XML Request:\n" . $xmlRequest, null, 'cielo.log');
+	    Mage::log("XML Return:\n" . $xmlReturn, null, 'cielo.log');
 	    
 	    $xml = simplexml_load_string($xmlReturn);
 
