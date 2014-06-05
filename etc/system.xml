@@ -52,6 +52,8 @@
 							<show_in_website>1</show_in_website>
 							<show_in_store>1</show_in_store>
 						</max_plots>
+
+						<!--
 						<plots_type translate="label">
 							<label>Tipo de Parcelamento</label>
 							<frontend_type>select</frontend_type>
@@ -61,6 +63,8 @@
 							<show_in_website>1</show_in_website>
 							<show_in_store>1</show_in_store>
 						</plots_type>
+						-->
+
 						<environment translate="label">
 							<label>Ambiente</label>
 							<frontend_type>radios</frontend_type>

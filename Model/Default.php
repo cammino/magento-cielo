@@ -47,7 +47,8 @@ class Cammino_Cielo_Model_Default extends Mage_Payment_Model_Method_Abstract {
 		$cieloCapture   = $this->getConfigdata("capture") ? $this->getConfigdata("capture"):'false';
 		$cieloDesc 	    = $this->getConfigdata("description") ? $this->getConfigdata("description") : '';
 		$cieloToken     = $this->getConfigdata("token") ? $this->getConfigdata("token") : 'false';
-		$cieloPlotsType	= $this->getConfigdata("plots_type") ? $this->getConfigdata("plots_type") : 'A';
+		// $cieloPlotsType	= $this->getConfigdata("plots_type") ? $this->getConfigdata("plots_type") : 'L';
+		$cieloPlotsType	= 'L';
 		
 		// payment
 		$payMethod   = $addata->_data['cielo_type']; // 1- Credit Card / A- Debit Card / 3 - Credit card plots
@@ -56,11 +57,16 @@ class Cammino_Cielo_Model_Default extends Mage_Payment_Model_Method_Abstract {
 
 		if (strval($payMethod) == "A") {
 			$cieloAuthTrans = 1;
+			$plots = 1;
 		}
 
-		if (strval($payMethod) == "3") {
-			$payMethod = (strval($cieloPlotsType) == "L") ? "2" : "3";
+		if (intval($plots) > 1) {
+			$payMethod = "2";
 		}
+
+		// if (strval($payMethod) == "3") {
+		// 	$payMethod = (strval($cieloPlotsType) == "L") ? "2" : "3";
+		// }
 
 		// order
 		$orderData = str_replace(' ', 'T', $order->_data['created_at']);
