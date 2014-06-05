@@ -33,18 +33,17 @@ class Cammino_Cielo_Block_Receipt extends Mage_Payment_Block_Form {
 		
 		$order = Mage::getModel('sales/order')->loadByIncrementId($this->_orderId);
 		$cielo = Mage::getModel('cielo/default');
-		$xml = $cielo->sendXml($cielo->generateXmlReceipt($this->_orderId));
-
-		// try {
-			$payment = $order->getPayment();
-			$addata = unserialize($payment->getData("additional_data"));
-			$addata["tid"] = strval($xml->tid);
-			$payment->setAdditionalData(serialize($addata))->save();
-		// } catch (Exception $e) {
-		// }
+		$xml = $cielo->sendXml($cielo->generateXmlQuery($this->_orderId));
 		
 		if ($xml->status) {
-			if ( $xml->status == 1 || $xml->status == 2 || $xml->status == 4 || $xml->status == 6 || $xml->status == 10 ){
+			if ((strval($xml->status) == "0") ||
+				(strval($xml->status) == "1") || 
+				(strval($xml->status) == "2") ||
+				(strval($xml->status) == "3") ||
+				(strval($xml->status) == "4") ||
+				(strval($xml->status) == "6") ||
+				(strval($xml->status) == "10")) {
+
 				$state   = 'pending_payment';
 				$status  = 'pending_payment';
 				$comment = 'Cartão aprovado, aguardando captura.';

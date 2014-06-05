@@ -97,6 +97,7 @@ class Cammino_Cielo_Model_Default extends Mage_Payment_Model_Method_Abstract {
 		return $xml;
 	}
 	
+	/*
 	public function generateXmlReceipt($orderId)
 	{
 		$cieloNumber = $this->getConfigData('cielo_number');
@@ -113,6 +114,7 @@ class Cammino_Cielo_Model_Default extends Mage_Payment_Model_Method_Abstract {
 
 		return $xml;
 	}
+	*/
 
 	public function generateXmlCapture($orderId, $amount, $tid)
 	{
@@ -184,15 +186,21 @@ class Cammino_Cielo_Model_Default extends Mage_Payment_Model_Method_Abstract {
 		$order = $payment->getOrder();
 		$orderId = $order->getRealOrderId();
 		$addata = unserialize($payment->getData("additional_data"));
-		$tid = $addata["tid"];
-		$xml = $this->sendXml($this->generateXmlCapture($orderId, $amount, $tid));
+		$xml = $this->sendXml($this->generateXmlQuery($orderId));
 
 		if (strval($xml->captura) == "") {
-			$message = $xml->mensagem;
-			Mage::logException($message);
-			Mage::throwException($message);
-		}
+			$tid = $addata["tid"];
+			$xml = $this->sendXml($this->generateXmlCapture($orderId, $amount, $tid));
 
-		return $this;
+			if (strval($xml->captura) == "") {
+				$message = $xml->mensagem;
+				Mage::logException($message);
+				Mage::throwException($message);
+			} else {
+				return $this;
+			}
+		} else {
+			return $this;
+		}
 	}
 }

@@ -19,6 +19,14 @@ class Cammino_Cielo_Block_Pay extends Mage_Payment_Block_Form {
 		}
 		
 		$this->_xml = $cielo->sendXml($cielo->generateXml($this->_orderId));
+
+		if (strval($this->_xml->tid) != "") {
+			$payment = $order->getPayment();
+			$addata = unserialize($payment->getData("additional_data"));
+			$addata["tid"] = strval($this->_xml->tid);
+			$payment->setAdditionalData(serialize($addata))->save();
+		}
+
 		$this->setTemplate("cielo/pay.phtml");
 
 		parent::_construct();
