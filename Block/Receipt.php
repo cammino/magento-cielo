@@ -36,10 +36,7 @@ class Cammino_Cielo_Block_Receipt extends Mage_Payment_Block_Form {
 		$xml = $cielo->sendXml($cielo->generateXmlQuery($this->_orderId));
 		
 		if ($xml->status) {
-			if ((strval($xml->status) == "0") ||
-				(strval($xml->status) == "1") || 
-				(strval($xml->status) == "2") ||
-				(strval($xml->status) == "3") ||
+			if ((strval($xml->status) == "2") ||
 				(strval($xml->status) == "4") ||
 				(strval($xml->status) == "6") ||
 				(strval($xml->status) == "10")) {
