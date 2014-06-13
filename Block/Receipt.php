@@ -36,10 +36,8 @@ class Cammino_Cielo_Block_Receipt extends Mage_Payment_Block_Form {
 		$xml = $cielo->sendXml($cielo->generateXmlQuery($this->_orderId));
 		
 		if ($xml->status) {
-			if ((strval($xml->status) == "2") ||
-				(strval($xml->status) == "4") ||
-				(strval($xml->status) == "6") ||
-				(strval($xml->status) == "10")) {
+			if ((strval($xml->status) == "4") ||
+				(strval($xml->status) == "6")) {
 
 				$state   = 'pending_payment';
 				$status  = 'pending_payment';
@@ -56,12 +54,14 @@ class Cammino_Cielo_Block_Receipt extends Mage_Payment_Block_Form {
 			}
 		}
 
-		$order->setState($state, $status, $comment, false);
-		$order->save();
-
-		if ($status != 'canceled') {
+		if ($order->getStatus() == "pending") {
+			$order->setState($state, $status, $comment, false);
 			$order->save();
-			$order->sendNewOrderEmail();
+
+			if ($status != 'canceled') {
+				$order->save();
+				$order->sendNewOrderEmail();
+			}
 		}
 
 		return $xml;
