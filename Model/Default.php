@@ -42,7 +42,8 @@ class Cammino_Cielo_Model_Default extends Mage_Payment_Model_Method_Abstract {
 		$cieloNumber = $this->getConfigdata("cielo_number");
 		$cieloKey 	 = $this->getConfigdata("cielo_key");
 
-		$cieloAuthTrans = $this->getConfigdata("auth_transition") ? $this->getConfigdata("auth_transition") : 3;
+		// $cieloAuthTrans = $this->getConfigdata("auth_transition") ? $this->getConfigdata("auth_transition") : 3;
+		$cieloAuthTrans	= 3;
 		$cieloRetUrl    = $this->getConfigdata("url_return") ? $this->getConfigdata("url_return") : $url_return_default;
 		$cieloCapture   = $this->getConfigdata("capture") ? $this->getConfigdata("capture"):'false';
 		$cieloDesc 	    = $this->getConfigdata("description") ? $this->getConfigdata("description") : '';
@@ -56,7 +57,7 @@ class Cammino_Cielo_Model_Default extends Mage_Payment_Model_Method_Abstract {
 		$plots		 = $addata->_data['cielo_plots']; // 1x, 3x, 6x, 12x, 18x, 36x, 56x.
 
 		if (strval($payMethod) == "A") {
-			$cieloAuthTrans = 1;
+			$cieloAuthTrans = 2;
 			$plots = 1;
 		}
 
