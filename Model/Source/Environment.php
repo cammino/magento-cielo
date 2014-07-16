@@ -5,15 +5,11 @@ class Cammino_Cielo_Model_Source_Environment {
 		return array(
 			array(
 				"value" => "production",
-				"label" => " Produção"
-			),
-			array(
-				"value" => "test",
-				"label" => " Testes"
+				"label" => "Produção"
 			),
 			array(
 				"value" => "homolog",
-				"label" => " Homologação"
+				"label" => "Homologação"
 			)
 		);
 	}

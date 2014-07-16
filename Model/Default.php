@@ -14,6 +14,12 @@ class Cammino_Cielo_Model_Default extends Mage_Payment_Model_Method_Abstract {
 			$data = new Varien_Object($data);
 		}
 
+		if ($this->getConfigdata("integration_type") == "store") {
+			$data["cielo_card_number"] = Mage::helper('core')->encrypt($data["cielo_card_number"]);
+			$data["cielo_card_security"] = Mage::helper('core')->encrypt($data["cielo_card_security"]);
+			$data["cielo_card_expiration"] = Mage::helper('core')->encrypt($data["cielo_card_expiration"]);
+		}
+
 		$info = $this->getInfoInstance();
 		$info->setAdditionalData(serialize($data));
 		
@@ -144,7 +150,7 @@ class Cammino_Cielo_Model_Default extends Mage_Payment_Model_Method_Abstract {
 
 	public function sendXml($xmlRequest)
 	{
-		if($this->getConfigdata("environment") == 'test'){
+		if($this->getConfigdata("environment") == 'homolog'){
     		$url = 'https://qasecommerce.cielo.com.br/servicos/ecommwsec.do';
 		}else{
     		$url = 'https://ecommerce.cbmp.com.br/servicos/ecommwsec.do';
