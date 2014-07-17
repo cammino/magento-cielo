@@ -20,20 +20,25 @@ class Cammino_Cielo_Block_Pay extends Mage_Payment_Block_Form {
 
 		$order->loadByIncrementId($this->_orderId);
 		$payment = $order->getPayment();
-		$addata = unserialize($payment->getData("additional_data"));
+		$xml = $cielo->generateXml($this->_orderId);
+
+		var_dump($xml);
+		die;
+
+		// $addata = unserialize($payment->getData("additional_data"));
 		
-		if (strval($addata["paymenturl"]) == "") {
-			$this->_xml = $cielo->sendXml($cielo->generateXml($this->_orderId));
+		// if (strval($addata["paymenturl"]) == "") {
+		// 	$this->_xml = $cielo->sendXml($cielo->generateXml($this->_orderId));
 
-			if (strval($this->_xml->tid) != "") {
-				$addata["tid"] = strval($this->_xml->tid);
-				$addata["paymenturl"] = strval($this->_xml->{'url-autenticacao'});
-				$payment->setAdditionalData(serialize($addata))->save();
-			}				
-		}
+		// 	if (strval($this->_xml->tid) != "") {
+		// 		$addata["tid"] = strval($this->_xml->tid);
+		// 		$addata["paymenturl"] = strval($this->_xml->{'url-autenticacao'});
+		// 		$payment->setAdditionalData(serialize($addata))->save();
+		// 	}				
+		// }
 
-		$this->_paymenturl = $addata["paymenturl"];
-		$this->setTemplate("cielo/pay.phtml");
+		// $this->_paymenturl = $addata["paymenturl"];
+		// $this->setTemplate("cielo/pay.phtml");
 
 		parent::_construct();
 	}

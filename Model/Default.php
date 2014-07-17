@@ -86,6 +86,23 @@ class Cammino_Cielo_Model_Default extends Mage_Payment_Model_Method_Abstract {
 		$xml  = '<?xml version="1.0" encoding="ISO-8859-1"?>';
 		$xml .= '<requisicao-transacao id="'.$orderId.'" versao="1.2.1">';
     	$xml .= '<dados-ec><numero>'.$cieloNumber.'</numero><chave>'.$cieloKey.'</chave></dados-ec>';
+
+		if ($this->getConfigdata("integration_type") == "store") {
+
+			$cardNumber = Mage::helper('core')->decrypt($addata->_data["cielo_card_number"]);
+			$cardNumber = str_replace(" ", "", $cardNumber);
+			$cardSecurity = Mage::helper('core')->decrypt($addata->_data["cielo_card_security"]);
+			$cardExpiration = explode("/", Mage::helper('core')->decrypt($addata->_data["cielo_card_expiration"]));
+			$cardExpiration = end($cardExpiration) . array_shift($cardExpiration);
+
+	    	$xml .= '<dados-portador>
+	    				<numero>'.$cardNumber.'</numero>
+	    				<validade>'.$cardExpiration.'</validade>
+	    				<indicador>1</validade>
+	    				<codigo-seguranca>'.$cardExpiration.'</codigo-seguranca>
+	    			 </dados-portador>';
+	    }
+
     	$xml .= '<dados-pedido> 
     				<numero>'.$orderId.'</numero>
     				<valor>'.$orderTotal.'</valor>
