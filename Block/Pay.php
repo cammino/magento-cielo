@@ -6,39 +6,22 @@ class Cammino_Cielo_Block_Pay extends Mage_Payment_Block_Form {
 	private $_error;
 	private $_paymenturl;
 
-	protected function _construct() {
-
+	protected function _construct()
+	{
 		$session = Mage::getSingleton('checkout/session');
-		$order 	 = Mage::getModel("sales/order");
-		$cielo   = Mage::getModel('cielo/default');
-			
+		$cielo = Mage::getModel('cielo/default');
 		$this->_orderId = $this->getRequest()->getParam("id");
 
 		if(!$this->_orderId) {
 			$this->_orderId = $session->getLastRealOrderId();
 		}
 
-		$order->loadByIncrementId($this->_orderId);
-		$payment = $order->getPayment();
-		$xml = $cielo->generateXml($this->_orderId);
+		$cieloReturn = $cielo->doTransaction($this->_orderId);
 
-		var_dump($xml);
-		die;
-
-		// $addata = unserialize($payment->getData("additional_data"));
-		
-		// if (strval($addata["paymenturl"]) == "") {
-		// 	$this->_xml = $cielo->sendXml($cielo->generateXml($this->_orderId));
-
-		// 	if (strval($this->_xml->tid) != "") {
-		// 		$addata["tid"] = strval($this->_xml->tid);
-		// 		$addata["paymenturl"] = strval($this->_xml->{'url-autenticacao'});
-		// 		$payment->setAdditionalData(serialize($addata))->save();
-		// 	}				
+		// if (strval($cieloReturn["paymenturl"]) != "") {
+		// 	$this->_paymenturl = $cieloReturn["paymenturl"];
+		// 	$this->setTemplate("cielo/pay.phtml");
 		// }
-
-		// $this->_paymenturl = $addata["paymenturl"];
-		// $this->setTemplate("cielo/pay.phtml");
 
 		parent::_construct();
 	}

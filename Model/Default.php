@@ -46,21 +46,21 @@ class Cammino_Cielo_Model_Default extends Mage_Payment_Model_Method_Abstract {
 
 		// default for operation
 		$cieloNumber = $this->getConfigdata("cielo_number");
-		$cieloKey 	 = $this->getConfigdata("cielo_key");
+		$cieloKey = $this->getConfigdata("cielo_key");
 
 		// $cieloAuthTrans = $this->getConfigdata("auth_transition") ? $this->getConfigdata("auth_transition") : 3;
 		$cieloAuthTrans	= 3;
-		$cieloRetUrl    = $this->getConfigdata("url_return") ? $this->getConfigdata("url_return") : $url_return_default;
-		$cieloCapture   = $this->getConfigdata("capture") ? $this->getConfigdata("capture"):'false';
-		$cieloDesc 	    = $this->getConfigdata("description") ? $this->getConfigdata("description") : '';
-		$cieloToken     = $this->getConfigdata("token") ? $this->getConfigdata("token") : 'false';
+		$cieloRetUrl = $this->getConfigdata("url_return") ? $this->getConfigdata("url_return") : $url_return_default;
+		$cieloCapture = $this->getConfigdata("capture") ? $this->getConfigdata("capture"):'false';
+		$cieloDesc = $this->getConfigdata("description") ? $this->getConfigdata("description") : '';
+		$cieloToken = $this->getConfigdata("token") ? $this->getConfigdata("token") : 'false';
 		// $cieloPlotsType	= $this->getConfigdata("plots_type") ? $this->getConfigdata("plots_type") : 'L';
 		$cieloPlotsType	= 'L';
 		
 		// payment
-		$payMethod   = $addata->_data['cielo_type']; // 1- Credit Card / A- Debit Card / 3 - Credit card plots
-		$card 		 = $addata->_data['cielo_card']; // visa, master, elo
-		$plots		 = $addata->_data['cielo_plots']; // 1x, 3x, 6x, 12x, 18x, 36x, 56x.
+		$payMethod = $addata->_data['cielo_type']; // 1- Credit Card / A- Debit Card / 3 - Credit card plots
+		$card = $addata->_data['cielo_card']; // visa, master, elo
+		$plots = $addata->_data['cielo_plots']; // 1x, 3x, 6x, 12x, 18x, 36x, 56x.
 
 		if (strval($payMethod) == "A") {
 			$cieloAuthTrans = 2;
@@ -98,8 +98,8 @@ class Cammino_Cielo_Model_Default extends Mage_Payment_Model_Method_Abstract {
 	    	$xml .= '<dados-portador>
 	    				<numero>'.$cardNumber.'</numero>
 	    				<validade>'.$cardExpiration.'</validade>
-	    				<indicador>1</validade>
-	    				<codigo-seguranca>'.$cardExpiration.'</codigo-seguranca>
+	    				<indicador>1</indicador>
+	    				<codigo-seguranca>'.$cardSecurity.'</codigo-seguranca>
 	    			 </dados-portador>';
 	    }
 
@@ -126,25 +126,6 @@ class Cammino_Cielo_Model_Default extends Mage_Payment_Model_Method_Abstract {
 
 		return $xml;
 	}
-	
-	/*
-	public function generateXmlReceipt($orderId)
-	{
-		$cieloNumber = $this->getConfigData('cielo_number');
-		$cieloKey = $this->getConfigData('cielo_key');
-
-		$xml = '<?xml version="1.0" encoding="UTF-8"?>
-			<requisicao-consulta-chsec id="'.$orderId.'" versao="1.2.1">
-				<numero-pedido>'.$orderId.'</numero-pedido>
-				<dados-ec>
-					<numero>'.$cieloNumber.'</numero>
-					<chave>'.$cieloKey.'</chave>
-				</dados-ec>
-			</requisicao-consulta-chsec>';
-
-		return $xml;
-	}
-	*/
 
 	public function generateXmlCapture($orderId, $amount, $tid)
 	{
@@ -187,6 +168,8 @@ class Cammino_Cielo_Model_Default extends Mage_Payment_Model_Method_Abstract {
 	    $xmlReturn = curl_exec($ch);
 	    curl_close($ch);
 
+	    var_dump($xmlReturn);
+
 	    Mage::log("XML Request:\n" . $xmlRequest, null, 'cielo.log');
 	    Mage::log("XML Return:\n" . $xmlReturn, null, 'cielo.log');
 	    
@@ -209,6 +192,46 @@ class Cammino_Cielo_Model_Default extends Mage_Payment_Model_Method_Abstract {
 			</requisicao-consulta-chsec>";
 
 		return $xml;
+	}
+
+	public function doTransaction($orderId)
+	{
+		$order = Mage::getModel("sales/order");
+		$order->loadByIncrementId($orderId);
+		$payment = $order->getPayment();
+		$addata = unserialize($payment->getData("additional_data"));
+
+		$addata["tid"] = strval($xml->tid);
+
+		if($this->getConfigdata("integration_type") == "store") {
+
+			// ByPage Loja
+
+			$xml = $this->sendXml($this->generateXml($orderId));
+
+			if (strval($xml->tid) != "") {
+				$addata["tid"] = strval($xml->tid);
+			}
+
+			return array();
+
+		} else  {
+
+			// ByPage Cielo
+
+			if (strval($addata["paymenturl"]) == "") {
+
+				$xml = $this->sendXml($this->generateXml($orderId));
+
+				if (strval($xml->tid) != "") {
+					$addata["tid"] = strval($xml->tid);
+					$addata["paymenturl"] = strval($xml->{'url-autenticacao'});
+					$payment->setAdditionalData(serialize($addata))->save();
+				}				
+			}
+\
+			return array("paymenturl" => $addata["paymenturl"]);
+		}
 	}
 
 	public function capture(Varien_Object $payment, $amount)
