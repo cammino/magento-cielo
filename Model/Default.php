@@ -99,7 +99,7 @@ class Cammino_Cielo_Model_Default extends Mage_Payment_Model_Method_Abstract {
 	    				<numero>'.$cardNumber.'</numero>
 	    				<validade>'.$cardExpiration.'</validade>
 	    				<indicador>1</indicador>
-	    				<codigo-seguranca>'.$cardSecurity.'</codigo-seguranca>
+	    				<codigo-seguranca>'.$cardSecurity.'123</codigo-seguranca>
 	    			 </dados-portador>';
 	    }
 
@@ -201,37 +201,28 @@ class Cammino_Cielo_Model_Default extends Mage_Payment_Model_Method_Abstract {
 		$payment = $order->getPayment();
 		$addata = unserialize($payment->getData("additional_data"));
 
-		$addata["tid"] = strval($xml->tid);
-
-		if($this->getConfigdata("integration_type") == "store") {
-
-			// ByPage Loja
+		//if (strval($addata["paymenturl"]) == "") {
 
 			$xml = $this->sendXml($this->generateXml($orderId));
 
-			if (strval($xml->tid) != "") {
-				$addata["tid"] = strval($xml->tid);
-			}
+			//if($this->getConfigdata("integration_type") == "store") {
 
-			return array();
+				// ByPage Loja
 
-		} else  {
-
-			// ByPage Cielo
-
-			if (strval($addata["paymenturl"]) == "") {
-
-				$xml = $this->sendXml($this->generateXml($orderId));
-
-				if (strval($xml->tid) != "") {
+				//if (strval($xml->tid) != "") {
 					$addata["tid"] = strval($xml->tid);
 					$addata["paymenturl"] = strval($xml->{'url-autenticacao'});
 					$payment->setAdditionalData(serialize($addata))->save();
-				}				
-			}
-\
-			return array("paymenturl" => $addata["paymenturl"]);
-		}
+				//}
+
+				return array("paymenturl" => $addata["paymenturl"]);
+
+			//}
+
+		//} else {
+		//	return array("paymenturl" => $addata["paymenturl"]);
+		//}
+
 	}
 
 	public function capture(Varien_Object $payment, $amount)

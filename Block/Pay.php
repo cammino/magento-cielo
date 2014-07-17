@@ -18,6 +18,8 @@ class Cammino_Cielo_Block_Pay extends Mage_Payment_Block_Form {
 
 		$cieloReturn = $cielo->doTransaction($this->_orderId);
 
+		die;
+
 		// if (strval($cieloReturn["paymenturl"]) != "") {
 		// 	$this->_paymenturl = $cieloReturn["paymenturl"];
 		// 	$this->setTemplate("cielo/pay.phtml");
