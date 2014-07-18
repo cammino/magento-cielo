@@ -212,6 +212,9 @@ class Cammino_Cielo_Model_Default extends Mage_Payment_Model_Method_Abstract {
 				//if (strval($xml->tid) != "") {
 					$addata["tid"] = strval($xml->tid);
 					$addata["paymenturl"] = strval($xml->{'url-autenticacao'});
+					//$addata["cielo_card_number"] = "";
+					//$addata["cielo_card_security"] = "";
+					//$addata["cielo_card_expiration"] = "";
 					$payment->setAdditionalData(serialize($addata))->save();
 				//}
 
