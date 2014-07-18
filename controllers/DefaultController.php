@@ -2,6 +2,18 @@
 class Cammino_Cielo_DefaultController extends Mage_Core_Controller_Front_Action {
 	
 	public function receiptAction() {
+
+		$session = Mage::getSingleton('checkout/session');
+		$cielo = Mage::getModel('cielo/default');
+		$orderId = $this->getRequest()->getParam("id");
+
+		if(!$orderId) {
+			$orderId = $session->getLastRealOrderId();
+		}
+
+		$cieloData = $cielo->processReturn($orderId);
+		Mage::register("cielo_data", $cieloData);
+
 		$block = $this->getLayout()->createBlock('cielo/receipt');
 		$this->loadLayout();
 		$this->analyticsTrack();
@@ -33,6 +45,7 @@ class Cammino_Cielo_DefaultController extends Mage_Core_Controller_Front_Action 
 		}
 
 		$block = $this->getLayout()->createBlock('cielo/pay');
+
 		$this->loadLayout();
 		$this->analyticsTrack();
 		$this->getLayout()->getBlock('root')->setTemplate('page/1column.phtml');
