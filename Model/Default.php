@@ -99,7 +99,7 @@ class Cammino_Cielo_Model_Default extends Mage_Payment_Model_Method_Abstract {
 	    				<numero>'.$cardNumber.'</numero>
 	    				<validade>'.$cardExpiration.'</validade>
 	    				<indicador>1</indicador>
-	    				<codigo-seguranca>'.$cardSecurity.'123</codigo-seguranca>
+	    				<codigo-seguranca>'.$cardSecurity.'</codigo-seguranca>
 	    			 </dados-portador>';
 	    }
 
@@ -168,8 +168,6 @@ class Cammino_Cielo_Model_Default extends Mage_Payment_Model_Method_Abstract {
 	    $xmlReturn = curl_exec($ch);
 	    curl_close($ch);
 
-	    var_dump($xmlReturn);
-
 	    Mage::log("XML Request:\n" . $xmlRequest, null, 'cielo.log');
 	    Mage::log("XML Return:\n" . $xmlReturn, null, 'cielo.log');
 	    
@@ -178,7 +176,7 @@ class Cammino_Cielo_Model_Default extends Mage_Payment_Model_Method_Abstract {
 	    return $xml;
 	}
 
-	public function generateXmlQuery($orderId)
+	public function generateXmlQueryByOrder($orderId)
 	{
 		$cieloNumber = $this->getConfigData('cielo_number');
 		$cieloKey = $this->getConfigData('cielo_key');
@@ -194,35 +192,97 @@ class Cammino_Cielo_Model_Default extends Mage_Payment_Model_Method_Abstract {
 		return $xml;
 	}
 
+	public function generateXmlQueryByTid($tid)
+	{
+		$cieloNumber = $this->getConfigData('cielo_number');
+		$cieloKey = $this->getConfigData('cielo_key');
+
+		$xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>
+			<requisicao-consulta id=\"6fcf758e-bc60-4d6a-acf4-496593a40441\" versao=\"1.2.1\">
+				<tid>". $tid ."</tid>
+				<dados-ec>
+					<numero>". $cieloNumber ."</numero><chave>". $cieloKey ."</chave>
+				</dados-ec>
+			</requisicao-consulta>";
+
+		return $xml;
+	}
+
 	public function doTransaction($orderId)
 	{
-		$order = Mage::getModel("sales/order");
-		$order->loadByIncrementId($orderId);
+		$order = Mage::getModel("sales/order")->loadByIncrementId($orderId);
 		$payment = $order->getPayment();
 		$addata = unserialize($payment->getData("additional_data"));
 
-		//if (strval($addata["paymenturl"]) == "") {
+		if (strval($addata["paymenturl"]) == "") {
 
 			$xml = $this->sendXml($this->generateXml($orderId));
 
-			//if($this->getConfigdata("integration_type") == "store") {
+			if ($xml->getName() != "erro") {
 
-				// ByPage Loja
-
-				//if (strval($xml->tid) != "") {
+				if (strval($xml->tid) != "") {
 					$addata["tid"] = strval($xml->tid);
 					$addata["paymenturl"] = strval($xml->{'url-autenticacao'});
+					$addata["cielo_card_number"] = "";
+					$addata["cielo_card_security"] = "";
+					$addata["cielo_card_expiration"] = "";
 					$payment->setAdditionalData(serialize($addata))->save();
-				//}
+				}
 
 				return array("paymenturl" => $addata["paymenturl"]);
 
+			} else {
+				return array("error" => $xml->codigo . " - " . str_replace("\n", "", $xml->mensagem));
+			}
+
+			//if($this->getConfigdata("integration_type") == "store") {
 			//}
 
-		//} else {
-		//	return array("paymenturl" => $addata["paymenturl"]);
-		//}
+		} else {
+			return array("paymenturl" => $addata["paymenturl"]);
+		}
+	}
 
+	public function processReturn($orderId) {
+		$order = Mage::getModel('sales/order')->loadByIncrementId($orderId);
+		$payment = $order->getPayment();
+		$addata = unserialize($payment->getData("additional_data"));
+
+		$xml = $this->sendXml($this->generateXmlQueryByTid($addata["tid"]));
+		$error = "";
+		
+		if ($xml->status) {
+			if ((strval($xml->status) == "4") ||
+				(strval($xml->status) == "6")) {
+
+				$state   = 'pending_payment';
+				$status  = 'pending_payment';
+				$comment = 'Cartão aprovado, aguardando captura.';
+			} else {
+				$state = 'canceled';
+				$status = 'canceled';
+				
+				if ( isset($xml->cancelamentos->cancelamento->mensagem) ) { 
+					$comment = $xml->cancelamentos->cancelamento->mensagem;
+				} else {
+					$comment = 'Transação não autorizada.';
+				}
+
+				$error = $comment;
+			}
+		}
+
+		if ($order->getStatus() == "pending") {
+			$order->setState($state, $status, $comment, false);
+			$order->save();
+
+			if ($status != 'canceled') {
+				$order->save();
+				$order->sendNewOrderEmail();
+			}
+		}
+
+		return array("tid" => $addata["tid"], "order_id" => $orderId, "error" => $error);
 	}
 
 	public function capture(Varien_Object $payment, $amount)
@@ -230,7 +290,7 @@ class Cammino_Cielo_Model_Default extends Mage_Payment_Model_Method_Abstract {
 		$order = $payment->getOrder();
 		$orderId = $order->getRealOrderId();
 		$addata = unserialize($payment->getData("additional_data"));
-		$xml = $this->sendXml($this->generateXmlQuery($orderId));
+		$xml = $this->sendXml($this->generateXmlQueryByTid($addata["tid"]));
 
 		if (strval($xml->captura) == "") {
 			$tid = $addata["tid"];
