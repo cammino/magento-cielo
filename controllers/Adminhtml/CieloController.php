@@ -9,9 +9,10 @@ class Cammino_Cielo_Adminhtml_CieloController extends Mage_Adminhtml_Controller_
 		$addata = unserialize($payment->getData("additional_data"));
 		$xml = $cielo->sendXml($cielo->generateXmlQueryByTid($addata["tid"]));
 
-		$str = json_encode($xml, JSON_PRETTY_PRINT);
-		$str = str_replace("\n", "<br/>", $str);
-		$str = str_replace("    ", "&nbsp;&nbsp;&nbsp;&nbsp;", $str);
+		$str = json_encode($xml);
+		$str = str_replace("{", "{<br/>", $str);
+		$str = str_replace("}", "<br/>}", $str);
+		$str = str_replace(",", "<br/>", $str);
 
 		echo "<html><body>" . $str . "</body></html>";
 	}

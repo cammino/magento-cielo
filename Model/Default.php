@@ -14,7 +14,7 @@ class Cammino_Cielo_Model_Default extends Mage_Payment_Model_Method_Abstract {
 			$data = new Varien_Object($data);
 		}
 
-		if ($this->getConfigdata("integration_type") == "store") {
+		if ($this->getIntegrationType() == "store") {
 			$data["cielo_card_number"] = Mage::helper('core')->encrypt($data["cielo_card_number"]);
 			$data["cielo_card_security"] = Mage::helper('core')->encrypt($data["cielo_card_security"]);
 			$data["cielo_card_expiration"] = Mage::helper('core')->encrypt($data["cielo_card_expiration"]);
@@ -28,6 +28,35 @@ class Cammino_Cielo_Model_Default extends Mage_Payment_Model_Method_Abstract {
 
     public function getOrderPlaceRedirectUrl() {
 		return Mage::getUrl('cielo/default/pay');
+	}
+
+	public function getIntegrationType() {
+		if ($this->isTestInProduction()) {
+			return "store";
+		} else {
+			return $this->getConfigdata("integration_type");
+		}
+	}
+
+	public function getAffiliation() {
+		if ($this->isTestInProduction()) {
+			return "1006993069";
+		} else {
+			return $this->getConfigdata("cielo_number");
+		}
+	}
+
+	public function getAffiliationKey() {
+		if ($this->isTestInProduction()) {
+			return "25fbb99741c739dd84d7b06ec78c9bac718838630f30b112d033ce2e621b34f3";
+		} else {
+			return $this->getConfigdata("cielo_key");
+		}
+	}
+
+	public function isTestInProduction() {
+		$customer = Mage::getSingleton('customer/session')->getCustomer();
+		return (isset($customer) && ($customer->getEmail() == "cieloecommerce@cielo.com.br"));
 	}
 
 	public function generateXml($orderId) {
@@ -45,8 +74,8 @@ class Cammino_Cielo_Model_Default extends Mage_Payment_Model_Method_Abstract {
 		$billingAddress = $order->getBillingAddress();
 
 		// default for operation
-		$cieloNumber = $this->getConfigdata("cielo_number");
-		$cieloKey = $this->getConfigdata("cielo_key");
+		$cieloNumber = $this->getAffiliation();
+		$cieloKey = $this->getAffiliationKey();
 
 		// $cieloAuthTrans = $this->getConfigdata("auth_transition") ? $this->getConfigdata("auth_transition") : 3;
 		$cieloAuthTrans	= 3;
@@ -87,7 +116,7 @@ class Cammino_Cielo_Model_Default extends Mage_Payment_Model_Method_Abstract {
 		$xml .= '<requisicao-transacao id="'.$orderId.'" versao="1.2.1">';
     	$xml .= '<dados-ec><numero>'.$cieloNumber.'</numero><chave>'.$cieloKey.'</chave></dados-ec>';
 
-		if ($this->getConfigdata("integration_type") == "store") {
+		if ($this->getIntegrationType() == "store") {
 
 			$cardNumber = Mage::helper('core')->decrypt($addata->_data["cielo_card_number"]);
 			$cardNumber = str_replace(" ", "", $cardNumber);
@@ -129,8 +158,8 @@ class Cammino_Cielo_Model_Default extends Mage_Payment_Model_Method_Abstract {
 
 	public function generateXmlCapture($orderId, $amount, $tid)
 	{
-		$cieloNumber = $this->getConfigData('cielo_number');
-		$cieloKey = $this->getConfigData('cielo_key');
+		$cieloNumber = $this->getAffiliation();
+		$cieloKey = $this->getAffiliationKey();
 		$amount = number_format($amount, 2, "", "");
 
 		$xml = '<?xml version="1.0" encoding="UTF-8"?>
@@ -178,8 +207,8 @@ class Cammino_Cielo_Model_Default extends Mage_Payment_Model_Method_Abstract {
 
 	public function generateXmlQueryByOrder($orderId)
 	{
-		$cieloNumber = $this->getConfigData('cielo_number');
-		$cieloKey = $this->getConfigData('cielo_key');
+		$cieloNumber = $this->getAffiliation();
+		$cieloKey = $this->getAffiliationKey();
 
 		$xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>
 			<requisicao-consulta-chsec id=\"a51489b1-93d5-437f-bb4f-5b932fade248\" versao=\"1.2.1\">
@@ -194,8 +223,8 @@ class Cammino_Cielo_Model_Default extends Mage_Payment_Model_Method_Abstract {
 
 	public function generateXmlQueryByTid($tid)
 	{
-		$cieloNumber = $this->getConfigData('cielo_number');
-		$cieloKey = $this->getConfigData('cielo_key');
+		$cieloNumber = $this->getAffiliation();
+		$cieloKey = $this->getAffiliationKey();
 
 		$xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>
 			<requisicao-consulta id=\"6fcf758e-bc60-4d6a-acf4-496593a40441\" versao=\"1.2.1\">
@@ -235,7 +264,7 @@ class Cammino_Cielo_Model_Default extends Mage_Payment_Model_Method_Abstract {
 				return array("error" => $xml->codigo . " - " . str_replace("\n", "", $xml->mensagem));
 			}
 
-			//if($this->getConfigdata("integration_type") == "store") {
+			//if($this->getIntegrationType() == "store") {
 			//}
 
 		} else {
