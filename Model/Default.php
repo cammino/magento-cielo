@@ -8,6 +8,14 @@ class Cammino_Cielo_Model_Default extends Mage_Payment_Model_Method_Abstract {
 	protected $_formBlockType = 'cielo/form';
 	protected $_infoBlockType = 'cielo/info';
 
+	public function isAvailable($quote = null) {
+		if ($this->isTestInProduction()) {
+			return parent::isAvailable();
+		} else {
+			return false;
+		}
+	}
+
     public function assignData($data) {
 
 		if (!($data instanceof Varien_Object)) {
@@ -31,27 +39,27 @@ class Cammino_Cielo_Model_Default extends Mage_Payment_Model_Method_Abstract {
 	}
 
 	public function getIntegrationType() {
-		if ($this->isTestInProduction()) {
-			return "store";
-		} else {
+		//if ($this->isTestInProduction()) {
+		//	return "store";
+		//} else {
 			return $this->getConfigdata("integration_type");
-		}
+		//}
 	}
 
 	public function getAffiliation() {
-		if ($this->isTestInProduction()) {
-			return "1006993069";
-		} else {
+		//if ($this->isTestInProduction()) {
+		//	return "1006993069";
+		//} else {
 			return $this->getConfigdata("cielo_number");
-		}
+		//}
 	}
 
 	public function getAffiliationKey() {
-		if ($this->isTestInProduction()) {
-			return "25fbb99741c739dd84d7b06ec78c9bac718838630f30b112d033ce2e621b34f3";
-		} else {
+		//if ($this->isTestInProduction()) {
+		//	return "25fbb99741c739dd84d7b06ec78c9bac718838630f30b112d033ce2e621b34f3";
+		//} else {
 			return $this->getConfigdata("cielo_key");
-		}
+		//}
 	}
 
 	public function isTestInProduction() {
