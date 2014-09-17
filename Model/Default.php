@@ -8,13 +8,13 @@ class Cammino_Cielo_Model_Default extends Mage_Payment_Model_Method_Abstract {
 	protected $_formBlockType = 'cielo/form';
 	protected $_infoBlockType = 'cielo/info';
 
-	public function isAvailable($quote = null) {
-		if ($this->isTestInProduction()) {
-			return parent::isAvailable();
-		} else {
-			return false;
-		}
-	}
+	// public function isAvailable($quote = null) {
+	// 	if ($this->isTestInProduction()) {
+	// 		return parent::isAvailable();
+	// 	} else {
+	// 		return false;
+	// 	}
+	// }
 
     public function assignData($data) {
 
