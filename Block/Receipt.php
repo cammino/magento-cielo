@@ -43,8 +43,8 @@ class Cammino_Cielo_Block_Receipt extends Mage_Payment_Block_Form {
 				$status  = 'pending_payment';
 				$comment = 'Cartão aprovado, aguardando captura.';
 			} else if (strval($xml->status) == "0") {
-				$state   = 'pending_payment';
-				$status  = 'pending_payment';
+				$state   = 'new';
+				$status  = 'pending';
 				$comment = 'Transação criada na Cielo. Aguardando autorização.';
 			} else {
 				$state = 'canceled';
