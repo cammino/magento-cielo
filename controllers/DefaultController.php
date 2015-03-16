@@ -34,12 +34,12 @@ class Cammino_Cielo_DefaultController extends Mage_Core_Controller_Front_Action 
 		$cieloData = $cielo->doTransaction($orderId);
 		Mage::register("cielo_data", $cieloData);
 
-		if (strval($cieloData["error"]) == "") {
+		if ( !isset($cieloData["error"]) || (strval($cieloData["error"]) == "")) {
 			$url = "";
 			if (strval($cieloData["paymenturl"]) != "") {
 				$url = $cieloData["paymenturl"];
 			} else {
-				$url = Mage::getUrl('cielo/default/receipt', array('id' => $this->_orderId));
+				$url = Mage::getUrl('cielo/default/receipt', array('id' => $orderId));
 			}
 			Mage::app()->getFrontController()->getResponse()->setRedirect($url)->sendResponse();
 		}
