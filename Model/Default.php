@@ -299,13 +299,21 @@ class Cammino_Cielo_Model_Default extends Mage_Payment_Model_Method_Abstract {
 				$state = 'canceled';
 				$status = 'canceled';
 				
-				if ( isset($xml->cancelamentos->cancelamento->mensagem) ) { 
+				if ( isset($xml->autorizacao) ) { 
+					$comment = $xml->autorizacao->mensagem;
+				} else if ( isset($xml->cancelamentos->cancelamento) ) { 
 					$comment = $xml->cancelamentos->cancelamento->mensagem;
 				} else {
 					$comment = 'Transação não autorizada.';
 				}
 
 				$error = $comment;
+			}
+		} else {
+			if ( isset($xml->erro) ) { 
+				$error = $xml->erro->mensagem;
+			} else {
+				$error = "Erro não identificado.";
 			}
 		}
 
