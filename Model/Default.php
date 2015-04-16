@@ -318,6 +318,11 @@ class Cammino_Cielo_Model_Default extends Mage_Payment_Model_Method_Abstract {
 		}
 
 		if ($order->getStatus() == "pending") {
+
+			if ($state == 'canceled') {
+				$order->cancel();
+			}
+
 			$order->setState($state, $status, $comment, false);
 			$order->save();
 
