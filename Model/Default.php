@@ -205,8 +205,8 @@ class Cammino_Cielo_Model_Default extends Mage_Payment_Model_Method_Abstract {
 	    $xmlReturn = curl_exec($ch);
 	    curl_close($ch);
 
-	    Mage::log("XML Request:\n" . $xmlRequest, null, 'cielo.log');
-	    Mage::log("XML Return:\n" . $xmlReturn, null, 'cielo.log');
+	    // Mage::log("XML Request:\n" . $xmlRequest, null, 'cielo.log');
+	    // Mage::log("XML Return:\n" . $xmlReturn, null, 'cielo.log');
 	    
 	    $xml = simplexml_load_string($xmlReturn);
 
@@ -258,11 +258,14 @@ class Cammino_Cielo_Model_Default extends Mage_Payment_Model_Method_Abstract {
 			if ($xml->getName() != "erro") {
 
 				if (strval($xml->tid) != "") {
+					$cardNumber = Mage::helper('core')->decrypt($addata["cielo_card_number"]);
+					$maskedCardNumber = substr($cardNumber, 0, 6) . str_repeat("*", (strlen($cardNumber)-10)) . substr($cardNumber, -4);
+
 					$addata["tid"] = strval($xml->tid);
 					$addata["paymenturl"] = strval($xml->{'url-autenticacao'});
-					//$addata["cielo_card_number"] = "";
-					//$addata["cielo_card_security"] = "";
-					//$addata["cielo_card_expiration"] = "";
+					$addata["cielo_card_number"] = Mage::helper('core')->encrypt($maskedCardNumber);
+					$addata["cielo_card_security"] = "";
+					$addata["cielo_card_expiration"] = "";
 					$payment->setAdditionalData(serialize($addata))->save();
 				}
 
