@@ -17,4 +17,8 @@ class Cammino_Cielo_Adminhtml_CieloController extends Mage_Adminhtml_Controller_
 		echo "<html><body>" . $str . "</body></html>";
 	}
 
+	protected function _isAllowed(){
+        return true;
+    }
+
 }
