@@ -205,8 +205,8 @@ class Cammino_Cielo_Model_Default extends Mage_Payment_Model_Method_Abstract {
 	    $xmlReturn = curl_exec($ch);
 	    curl_close($ch);
 
-	    // Mage::log("XML Request:\n" . $xmlRequest, null, 'cielo.log');
-	    // Mage::log("XML Return:\n" . $xmlReturn, null, 'cielo.log');
+	    $this->log("XML Request:\n" . $xmlRequest);
+	    $this->log("XML Return:\n" . $xmlReturn);
 	    
 	    $xml = simplexml_load_string($xmlReturn);
 
@@ -272,7 +272,14 @@ class Cammino_Cielo_Model_Default extends Mage_Payment_Model_Method_Abstract {
 				return array("paymenturl" => $addata["paymenturl"]);
 
 			} else {
-				return array("error" => $xml->codigo . " - " . str_replace("\n", "", $xml->mensagem));
+				$errorMessage = $xml->codigo . " - " . str_replace("\n", "", $xml->mensagem);
+
+				// cancel order 
+				$order->cancel();
+				$order->setState('canceled', 'canceled', $errorMessage, false);
+				$order->save();
+
+				return array("error" => $errorMessage, 'order_id' => $orderId);
 			}
 
 			//if($this->getIntegrationType() == "store") {
@@ -359,5 +366,15 @@ class Cammino_Cielo_Model_Default extends Mage_Payment_Model_Method_Abstract {
 		} else {
 			return $this;
 		}
+	}
+
+	private function log($xml)
+	{
+		$xml = preg_replace("/<dados-portador>.*?<numero>.*?<\/numero>/s", "<dados-portador><numero></numero>", $xml);
+		$xml = preg_replace("/<validade>.*?<\/validade>/s", "<validade></validade>", $xml);
+		$xml = preg_replace("/<codigo-seguranca>.*?<\/codigo-seguranca>/s", "<codigo-seguranca></codigo-seguranca>", $xml);
+		$xml = preg_replace("/<bandeira>.*?<\/bandeira>/s", "<bandeira></bandeira>", $xml);
+
+		Mage::log($xml, null, 'cielo.log');
 	}
 }
