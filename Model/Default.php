@@ -274,10 +274,13 @@ class Cammino_Cielo_Model_Default extends Mage_Payment_Model_Method_Abstract {
 			} else {
 				$errorMessage = $xml->codigo . " - " . str_replace("\n", "", $xml->mensagem);
 
+
 				// cancel order 
-				$order->cancel();
-				$order->setState('canceled', 'canceled', $errorMessage, false);
-				$order->save();
+				if ($order->getStatus() == "pending") {
+					$order->cancel();
+					$order->setState('canceled', 'canceled', $errorMessage, false);
+					$order->save();
+				}
 
 				return array("error" => $errorMessage, 'order_id' => $orderId);
 			}
