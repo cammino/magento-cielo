@@ -21,7 +21,7 @@ class Cammino_Cielo_Model_Default extends Mage_Payment_Model_Method_Abstract {
 		if (!($data instanceof Varien_Object)) {
 			$data = new Varien_Object($data);
 		}
-
+		$data["cielo_card_expiration"] = $this->adjustExpirationFormat($data["cielo_card_expiration"]);
 		if ($this->getIntegrationType() == "store") {
 			$data["cielo_card_number"] = Mage::helper('core')->encrypt($data["cielo_card_number"]);
 			$data["cielo_card_security"] = Mage::helper('core')->encrypt($data["cielo_card_security"]);
@@ -369,6 +369,19 @@ class Cammino_Cielo_Model_Default extends Mage_Payment_Model_Method_Abstract {
 		} else {
 			return $this;
 		}
+	}
+
+	public function adjustExpirationFormat($expiration){
+		if(strlen($expiration) < 7){
+			$explode = explode("/", $expiration);
+			
+			if(strlen($explode[1]) == 2){
+				// Campo ano veio com 2 dígitos, então adiciona 20 na frente (ex: 19 -> 2019)
+				$expiration = $explode[0] . "/20" . $explode[1];
+			}
+		}
+		Mage::log("Data de Validade do cartão: " . $expiration, null, "debug.log");
+		return $expiration;
 	}
 
 	private function log($xml)
